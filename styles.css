@@ -43,12 +43,12 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 1.4rem;
+  font-size: 5rem;
   font-weight: 600;
 }
 
 .icon {
-  font-size: 1.8rem;
+  font-size: 5rem;
 }
 
 .v-divider {
@@ -57,9 +57,49 @@ body {
   background-color: #bbb;
 }
 
+
+
+.values {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  margin: 30px 0;
+}
+
+
+.number {
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+
+.footer {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 10px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 2px 1fr;
+  row-gap: 25px;
+  align-items: center;
+}
+
+.cell {
+  text-align: center;
+  font-weight: 300;
+  font-size: 2.5rem;
+}
+
+.value {
+  font-size: 1.8rem;
+}
+
+
 .h-divider {
-  margin-top: 15px;
-  height: 2px;
-  width: 100%;
+  grid-column: 1 / -1;
+  height: 1px;
   background-color: #ccc;
 }
