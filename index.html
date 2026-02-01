@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </head>
 <body>
 
@@ -24,6 +26,7 @@
     💧 NTU
   </div>
 
+  
   <div class="h-divider"></div>
 
   <div class="cell left value">
@@ -43,9 +46,83 @@
 <div class="footer">
   Laatste update: 03/02/2026 – 14:32
 </div>
+ 
+<canvas id="tempChart"></canvas>
 
 </div>
 
 </div>
+
+<script>
+
+  const ctx = document.getElementById('tempChart').getContext('2d');
+
+  
+  const tempChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['14:00', '14:05', '14:10', '14:15', '14:20'], 
+      datasets: [{
+        label: 'Temperatuur (°C)',
+        data: [20.5, 20.6, 20.7, 20.4, 20.6], 
+        borderColor: 'rgba(255, 99, 132, 1)', 
+        backgroundColor: 'rgba(255, 99, 132, 0.2)', 
+        fill: false, 
+        tension: 0.3 ,
+        yAxisID: 'yLeft'
+      },
+      {
+        label: 'NTU',
+        data: [2.8, 3.0, 2.9, 3.1, 3.2],
+        borderColor: 'rgba(54, 162, 235, 1)',
+        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+        fill: false,
+        tension: 0.3,
+        yAxisID: 'yRight'
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'top',
+        },
+      },
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: 'Tijd'
+          }
+        },
+        yLeft: {
+          type: 'linear',
+          position: 'left',
+          title: {
+            display: true,
+            text: 'Temperatuur (°C)'
+          },
+          min : 0,
+          max : 50
+        },
+        yRight: {
+          type: 'linear',
+          position: 'right',
+          title: {
+            display: true,
+            text: 'NTU'
+          },
+          min : 0,
+          max : 10,
+          grid: {
+            drawOnChartArea: false
+            }
+        }
+      }
+    }
+  });
+</script>
+
+
 </body>
 </html>
