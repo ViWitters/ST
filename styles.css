@@ -31,3 +31,35 @@ body {
   min-height: 400px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
+
+.header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.icon {
+  font-size: 1.8rem;
+}
+
+.v-divider {
+  width: 2px;
+  height: 30px;
+  background-color: #bbb;
+}
+
+.h-divider {
+  margin-top: 15px;
+  height: 2px;
+  width: 100%;
+  background-color: #ccc;
+}
