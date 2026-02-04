@@ -3,126 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Algen Dashboard</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 </head>
+
 <body>
 
     <div id="background"></div>
 
     <div class="container">
-  <div class="box">
-<div class="grid">
+        <div class="box">
 
-  <div class="cell left">
-    🌡️ Temperatuur
-  </div>
+            <div class="grid">
+                <div class="cell left">🌡️ Temperatuur</div>
+                <div class="cell v-divider"></div>
+                <div class="cell right">💧 NTU</div>
 
-  <div class="cell v-divider"></div>
+                <div class="h-divider"></div>
 
-  <div class="cell right">
-    💧 NTU
-  </div>
+                <div class="cell left value" id="tempValue">-- °C</div>
+                <div class="cell v-divider"></div>
+                <div class="cell right value" id="ntuValue">-- NTU</div>
+            </div>
 
-  
-  <div class="h-divider"></div>
+            <div class="h-divider"></div>
 
-  <div class="cell left value">
-    20.6 °C
-  </div>
+            <div class="footer" id="lastUpdate">
+                Laatste update: --
+            </div>
 
-  <div class="cell v-divider"></div>
+            <canvas id="tempChart"></canvas>
 
-  <div class="cell right value">
-    3.2 NTU
-  </div>
+        </div>
+    </div>
 
-</div>
+    <!-- SCRIPT 1: Grafiek aanmaken -->
+    <script>
+        const ctx = document.getElementById('tempChart').getContext('2d');
 
-<div class="h-divider"></div>
-
-<div class="footer">
-  Laatste update: 03/02/2026 – 14:32
-</div>
- 
-<canvas id="tempChart"></canvas>
-
-</div>
-
-</div>
-
-<script>
-
-  const ctx = document.getElementById('tempChart').getContext('2d');
-
-  
-  const tempChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: ['14:00', '14:05', '14:10', '14:15', '14:20'], 
-      datasets: [{
-        label: 'Temperatuur (°C)',
-        data: [20.5, 20.6, 20.7, 20.4, 20.6], 
-        borderColor: 'rgba(255, 99, 132, 1)', 
-        backgroundColor: 'rgba(255, 99, 132, 0.2)', 
-        fill: false, 
-        tension: 0.3 ,
-        yAxisID: 'yLeft'
-      },
-      {
-        label: 'NTU',
-        data: [2.8, 3.0, 2.9, 3.1, 3.2],
-        borderColor: 'rgba(54, 162, 235, 1)',
-        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-        fill: false,
-        tension: 0.3,
-        yAxisID: 'yRight'
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: {
-          position: 'top',
-        },
-      },
-      scales: {
-        x: {
-          title: {
-            display: true,
-            text: 'Tijd'
-          }
-        },
-        yLeft: {
-          type: 'linear',
-          position: 'left',
-          title: {
-            display: true,
-            text: 'Temperatuur (°C)'
-          },
-          min : 0,
-          max : 50
-        },
-        yRight: {
-          type: 'linear',
-          position: 'right',
-          title: {
-            display: true,
-            text: 'NTU'
-          },
-          min : 0,
-          max : 10,
-          grid: {
-            drawOnChartArea: false
+        const tempChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        label: 'Temperatuur (°C)',
+                        data: [],
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        fill: false,
+                        tension: 0.3,
+                        yAxisID: 'yLeft'
+                    },
+                    {
+                        label: 'NTU',
+                        data: [],
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        fill: false,
+                        tension: 0.3,
+                        yAxisID: 'yRight'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    yLeft: {
+                        min: 0,
+                        max: 50,
+                        position: 'left'
+                    },
+                    yRight: {
+                        min: 0,
+                        max: 20,
+                        position: 'right',
+                        grid: { drawOnChartArea: false }
+                    }
+                }
             }
-        }
-      }
-    }
-  });
-</script>
+        });
+    </script>
 
+    <!-- SCRIPT 2: ThingSpeak data ophalen -->
+    <script>
+        async function loadData() {
+
+          function toLocalTimeLabel(isoString) {
+    const d = new Date(isoString);
+    return d.toLocaleTimeString('nl-BE', { hour: '2-digit', minute: '2-digit' });
+}
+
+function toLocalDateTime(isoString) {
+    const d = new Date(isoString);
+    return d.toLocaleString('nl-BE', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+            const url = "https://api.thingspeak.com/channels/3243838/feeds.json?results=10";
+
+            const response = await fetch(url);
+            const data = await response.json();
+            const feeds = data.feeds;
+
+            // Temperatuur filteren
+            const tempData = feeds.filter(f => f.field1 !== null);
+            const tempLabels = tempData.map(f => toLocalTimeLabel(f.created_at));
+            const tempValues = tempData.map(f => parseFloat(f.field1));
+
+            // NTU filteren
+            const ntuData = feeds.filter(f => f.field2 !== null);
+            const ntuLabels = ntuData.map(f => toLocalTimeLabel(f.created_at));
+            const ntuValues = ntuData.map(f => parseFloat(f.field2));
+
+            // Grafiek updaten
+            tempChart.data.labels = tempLabels;
+            tempChart.data.datasets[0].data = tempValues;
+            tempChart.data.datasets[1].data = ntuValues;
+            tempChart.update();
+
+            // Laatste waarden bovenaan tonen
+            if (tempData.length > 0) {
+                document.getElementById("tempValue").textContent =
+                    tempValues[tempValues.length - 1] + " °C";
+            }
+
+            if (ntuData.length > 0) {
+                document.getElementById("ntuValue").textContent =
+                    ntuValues[ntuValues.length - 1] + " NTU";
+            }
+
+            // Laatste update tijd
+             const last = feeds[feeds.length - 1].created_at;
+            document.getElementById("lastUpdate").textContent =
+                "Laatste update: " + last;
+        }
+
+        loadData();
+        setInterval(loadData, 30000);
+    </script>
 
 </body>
 </html>
