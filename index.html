@@ -54,6 +54,10 @@
                         backgroundColor: 'rgba(255, 99, 132, 0.2)',
                         fill: false,
                         tension: 0.3,
+                        spanGaps: true,
+                        pointBackgroundColor: 'rgba(255, 99, 132, 1)',
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
                         yAxisID: 'yLeft'
                     },
                     {
@@ -63,16 +67,29 @@
                         backgroundColor: 'rgba(54, 162, 235, 0.2)',
                         fill: false,
                         tension: 0.3,
+                        spanGaps: true,
+                        pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
                         yAxisID: 'yRight'
                     }
                 ]
             },
             options: {
                 responsive: true,
+                elements: {
+                    line: {
+                        spanGaps: true
+                    },
+                    point: {
+                        radius: 4,
+                        hoverRadius: 6
+                    }
+                },
                 scales: {
                     yLeft: {
                         min: 0,
-                        max: 50,
+                        max: 30,
                         position: 'left'
                     },
                     yRight: {
@@ -106,21 +123,23 @@ function toLocalDateTime(isoString) {
     });
 }
 
-            const url = "https://api.thingspeak.com/channels/3243838/feeds.json?results=10";
+            const url = "https://api.thingspeak.com/channels/3243838/feeds.json?results=50";
 
             const response = await fetch(url);
             const data = await response.json();
             const feeds = data.feeds;
 
-            // Temperatuur filteren
-            const tempData = feeds.filter(f => f.field1 !== null);
-            const tempLabels = tempData.map(f => toLocalTimeLabel(f.created_at));
-            const tempValues = tempData.map(f => parseFloat(f.field1));
+            // Kies de meest recente 10 invoeren waar beide velden aanwezig zijn (valt terug op enige veld als er niet genoeg zijn)
+            let dataFeeds = feeds.filter(f => f.field1 !== null && f.field2 !== null);
+            if (dataFeeds.length < 10) {
+                dataFeeds = feeds.filter(f => f.field1 !== null || f.field2 !== null);
+            }
+            dataFeeds = dataFeeds.slice(-10);
 
-            // NTU filteren
-            const ntuData = feeds.filter(f => f.field2 !== null);
-            const ntuLabels = ntuData.map(f => toLocalTimeLabel(f.created_at));
-            const ntuValues = ntuData.map(f => parseFloat(f.field2));
+            // Labels en waarden opbouwen uit de geselecteerde feeds
+            const tempLabels = dataFeeds.map(f => toLocalTimeLabel(f.created_at));
+            const tempValues = dataFeeds.map(f => f.field1 !== null ? parseFloat(f.field1) : null);
+            const ntuValues = dataFeeds.map(f => f.field2 !== null ? parseFloat(f.field2) : null);
 
             // Grafiek updaten
             tempChart.data.labels = tempLabels;
@@ -129,20 +148,40 @@ function toLocalDateTime(isoString) {
             tempChart.update();
 
             // Laatste waarden bovenaan tonen
-            if (tempData.length > 0) {
-                document.getElementById("tempValue").textContent =
-                    tempValues[tempValues.length - 1] + " °C";
+            // Zoek laatste niet-lege temperatuurwaarde in tempValues
+            let lastTemp = null;
+            for (let i = tempValues.length - 1; i >= 0; i--) {
+                if (tempValues[i] !== null && !isNaN(tempValues[i])) {
+                    lastTemp = tempValues[i];
+                    break;
+                }
+            }
+            if (lastTemp !== null) {
+                document.getElementById("tempValue").textContent = lastTemp + " °C";
+            } else {
+                document.getElementById("tempValue").textContent = "-- °C";
             }
 
-            if (ntuData.length > 0) {
-                document.getElementById("ntuValue").textContent =
-                    ntuValues[ntuValues.length - 1] + " NTU";
+            // Zoek laatste niet-lege NTU-waarde in ntuValues
+            let lastNtu = null;
+            for (let i = ntuValues.length - 1; i >= 0; i--) {
+                if (ntuValues[i] !== null && !isNaN(ntuValues[i])) {
+                    lastNtu = ntuValues[i];
+                    break;
+                }
+            }
+            if (lastNtu !== null) {
+                document.getElementById("ntuValue").textContent = lastNtu + " NTU";
+            } else {
+                document.getElementById("ntuValue").textContent = "-- NTU";
             }
 
-            // Laatste update tijd
-             const last = feeds[feeds.length - 1].created_at;
+            // Laatste update tijd (gebruik laatste van de geselecteerde dataFeeds indien mogelijk)
+            const lastValid = (typeof dataFeeds !== 'undefined' && dataFeeds.length > 0)
+                ? dataFeeds[dataFeeds.length - 1].created_at
+                : feeds[feeds.length - 1].created_at;
             document.getElementById("lastUpdate").textContent =
-                "Laatste update: " + last;
+                "Laatste update: " + toLocalDateTime(lastValid);
         }
 
         loadData();
