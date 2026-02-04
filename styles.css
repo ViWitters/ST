@@ -23,11 +23,11 @@ body {
 
 
 .box {
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.70);
   padding: 40px;
   border-radius: 12px;
   text-align: center;
-  min-width: 300px;
+  min-width: 600px;
   min-height: 300px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
@@ -36,13 +36,13 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 20px;
+  gap: 10px;
 }
 
 
 .v-divider {
   width: 2px;
-  height: 30px;
+  height: 20px;
   background-color: #bbb;
 }
 
@@ -53,7 +53,7 @@ body {
   justify-content: center;
   align-items: center;
   gap: 40px;
-  margin: 30px 0;
+  margin: 20px 0;
 }
 
 
@@ -72,18 +72,18 @@ body {
 .grid {
   display: grid;
   grid-template-columns: 1fr 2px 1fr;
-  row-gap: 25px;
+  row-gap: 10px;
   align-items: center;
 }
 
 .cell {
   text-align: center;
-  font-weight: 300;
-  font-size: 2.5rem;
+  font-weight: 200;
+  font-size: 2rem;
 }
 
 .value {
-  font-size: 1.8rem;
+  font-size: 1.5rem;
 }
 
 
@@ -96,9 +96,9 @@ body {
 #tempChart {
   display: block;         
   margin: 0 auto;          
-  max-width: 900px;       
-  width: 100%;             
-  height: 600px;  
+  max-width: 700px;       
+  width: 90%;
+  height: 100px;  
   margin-top: 20px;         
 }
 
