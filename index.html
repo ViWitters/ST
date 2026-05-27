@@ -38,7 +38,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT 1: Grafiek aanmaken -->
+
     <script>
         const ctx = document.getElementById('tempChart').getContext('2d');
 
@@ -103,7 +103,7 @@
         });
     </script>
 
-    <!-- SCRIPT 2: ThingSpeak data ophalen -->
+
     <script>
         async function loadData() {
 
@@ -129,26 +129,25 @@ function toLocalDateTime(isoString) {
             const data = await response.json();
             const feeds = data.feeds;
 
-            // Kies de meest recente 10 invoeren waar beide velden aanwezig zijn (valt terug op enige veld als er niet genoeg zijn)
+            
             let dataFeeds = feeds.filter(f => f.field1 !== null && f.field2 !== null);
             if (dataFeeds.length < 10) {
                 dataFeeds = feeds.filter(f => f.field1 !== null || f.field2 !== null);
             }
             dataFeeds = dataFeeds.slice(-10);
 
-            // Labels en waarden opbouwen uit de geselecteerde feeds
+           
             const tempLabels = dataFeeds.map(f => toLocalTimeLabel(f.created_at));
             const tempValues = dataFeeds.map(f => f.field1 !== null ? parseFloat(f.field1) : null);
             const ntuValues = dataFeeds.map(f => f.field2 !== null ? parseFloat(f.field2) : null);
 
-            // Grafiek updaten
+
             tempChart.data.labels = tempLabels;
             tempChart.data.datasets[0].data = tempValues;
             tempChart.data.datasets[1].data = ntuValues;
             tempChart.update();
 
-            // Laatste waarden bovenaan tonen
-            // Zoek laatste niet-lege temperatuurwaarde in tempValues
+            
             let lastTemp = null;
             for (let i = tempValues.length - 1; i >= 0; i--) {
                 if (tempValues[i] !== null && !isNaN(tempValues[i])) {
@@ -162,7 +161,7 @@ function toLocalDateTime(isoString) {
                 document.getElementById("tempValue").textContent = "-- °C";
             }
 
-            // Zoek laatste niet-lege NTU-waarde in ntuValues
+            
             let lastNtu = null;
             for (let i = ntuValues.length - 1; i >= 0; i--) {
                 if (ntuValues[i] !== null && !isNaN(ntuValues[i])) {
@@ -176,7 +175,7 @@ function toLocalDateTime(isoString) {
                 document.getElementById("ntuValue").textContent = "-- NTU";
             }
 
-            // Laatste update tijd (gebruik laatste van de geselecteerde dataFeeds indien mogelijk)
+           
             const lastValid = (typeof dataFeeds !== 'undefined' && dataFeeds.length > 0)
                 ? dataFeeds[dataFeeds.length - 1].created_at
                 : feeds[feeds.length - 1].created_at;
